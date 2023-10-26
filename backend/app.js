@@ -10,7 +10,7 @@ var app = express();
 
 const db = require('./database.js');
 const productRoutes = require('./routes/productRoutes');
-// const cartRoutes = require('./routes/cartRoutes');
+const cartRoutes = require('./routes/cartRoutes');
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -22,7 +22,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 app.use('/products', productRoutes);
-// app.use('/cart', cartRoutes);
+app.use('/cart', cartRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -30,3 +30,5 @@ app.use((err, req, res, next) => {
 });
 
 module.exports = app;
+
+i made the folders
