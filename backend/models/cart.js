@@ -1,35 +1,50 @@
 class Cart {
-  constructor(rules) {
-      this.rules = rules;
-      this.items = [];
+  constructor(cartId) {  // Changed cartID to cartId
+      this.cartId = cartId;
   }
 
-  addItem(product) {
-      this.items.push(product);
+  create() {
+      return new Promise((resolve, reject) => {
+          db.run(`INSERT INTO carts (id) VALUES (?)`, [this.cartId], (err) => {
+              if (err) reject(err);
+              else resolve();
+          });
+      });
   }
 
-  removeItem(productId) {
-      this.items = this.items.filter(item => item.id !== productId);
+  addItem(productId, quantity) {
+      return new Promise((resolve, reject) => {
+          db.run(`INSERT INTO cart_items (cart_id, product_id, quantity) VALUES (?, ?, ?)`, [this.cartId, productId, quantity], (err) => {
+              if (err) reject(err);
+              else resolve();
+          });
+      });
   }
 
   listItems() {
-      return this.items;
+      return new Promise((resolve, reject) => {
+          db.all(`SELECT products.*, cart_items.quantity
+                  FROM cart_items
+                  JOIN products ON cart_items.product_id = products.id
+                  WHERE cart_items.cart_id = ?`, [this.cartId], (err, rows) => {
+              if (err) reject(err);
+              else resolve(rows);
+          });
+      });
   }
 
-  total() {
-      let total = this.items.reduce((acc, item) => acc + item.price, 0);
-      let discounts = this.total_discounts();
-      return total - discounts;
+  removeItem(productId) {
+      return new Promise((resolve, reject) => {
+          db.run(`DELETE FROM cart_items
+                  WHERE cart_items.cart_id = ? and cart_items.product_id = ?`,
+                  [this.cartId, productId], (err) => {
+              if (err) reject(err);
+              else resolve();
+          })
+      })
   }
 
-  total_discounts() {
-      return this.rules.reduce((acc, rule) => {
-          if (rule.applies(this.items)) {
-              // return acc + rule.discountAmount;
-          }
-          return acc;
-      }, 0);
-  }
+  // ... Other methods for handling cart operations, discounts, and total calculations ...
 }
 
 module.exports = Cart;
