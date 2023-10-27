@@ -11,7 +11,9 @@ var app = express();
 const db = require('./database.js');
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
+const cors = require('cors')
 
+app.use(cors())
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -30,5 +32,3 @@ app.use((err, req, res, next) => {
 });
 
 module.exports = app;
-
-i made the folders

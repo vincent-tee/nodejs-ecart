@@ -1,4 +1,3 @@
-// File: models/basketTotalPromotion.js
 const Promotion = require('./promotion');
 const db = require("../database");
 
