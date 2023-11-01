@@ -2,19 +2,17 @@ const express = require('express');
 const router = express.Router();
 const Cart = require('../models/cart');
 const Promotion = require('../models/promotion');
+const db = require('../database')
 
 // Middleware to create a cart if it doesn't exist
 router.use('/:cartId', async (req, res, next) => {
-    const cartId = req.params.cartId;
-    try {
-        await Cart.create(cartId);
-    } catch (err) {
-        if (err.code !== 'SQLITE_CONSTRAINT') {  // Ignore error if the cart already exists
-            return next(err);
-        }
-    }
-    req.cartId = cartId;
-    next();
+  const cartId = req.params.cartId;
+  db.get(`SELECT id FROM carts WHERE id = ?`, [cartId], (err, row) => {
+      if (err) return next(err);
+      if (!row) return res.status(404).send('Cart not found');
+      req.cartId = cartId;  // cart exists, proceed to the next middleware/route handler
+      next();
+  });
 });
 
 // Add item to cart
@@ -33,8 +31,9 @@ router.post('/:cartId/items', async (req, res, next) => {
 router.get('/:cartId', async (req, res, next) => {
     const { cartId } = req.params;
     try {
-        const items = await Cart.listItems(cartId);
-        const promotions = await Cart.loadPromotions(cartId);  // Fetch promotions for this cart
+        const cart = new Cart(db, cartId);
+        const items = await cart.listItems();
+        const promotions = await cart.loadPromotions();  // Fetch promotions for this cart
         res.json({ items, promotions });  // Include both items and promotions in the response
     } catch (err) {
         next(err);

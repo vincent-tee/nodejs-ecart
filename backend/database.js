@@ -1,5 +1,11 @@
 const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('./shop.sqlite');
+const db = new sqlite3.Database('./shop.sqlite', (err) => {
+  if (err) {
+    console.error('Error opening database:', err.message);
+  } else {
+    console.log('Database opened successfully');
+  }
+});
 
 db.run("PRAGMA foreign_keys = ON");
 
