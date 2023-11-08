@@ -56,6 +56,32 @@ db.serialize(() => {
         discount_amount REAL NOT NULL,
         FOREIGN KEY(promotion_id) REFERENCES promotions(id)
     )`);
+
+    // Cart Promotions Table
+    db.run(`CREATE TABLE IF NOT EXISTS cart_promotions (
+      cart_id INTEGER NOT NULL,
+      promotion_id INTEGER NOT NULL,
+      PRIMARY KEY (cart_id, promotion_id),
+      FOREIGN KEY (cart_id) REFERENCES carts(id),
+      FOREIGN KEY (promotion_id) REFERENCES promotions(id)
+    )`);
+
+    // Promotions View
+    db.run(`
+      CREATE VIEW IF NOT EXISTS v_promotion_details AS
+      SELECT
+        p.id,
+        p.type,
+        p.description,
+        mb.target_product_id,
+        mb.required_quantity,
+        mb.discount_price,
+        bt.threshold_price,
+        bt.discount_amount
+      FROM promotions p
+      LEFT JOIN multi_buy_promotions mb ON p.id = mb.promotion_id
+      LEFT JOIN basket_total_promotions bt ON p.id = bt.promotion_id
+    `);
 });
 
 module.exports = db;

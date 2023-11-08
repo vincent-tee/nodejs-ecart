@@ -6,26 +6,38 @@ const db = require('../database')
 
 // Middleware to create a cart if it doesn't exist
 router.use('/:cartId', async (req, res, next) => {
-  const cartId = req.params.cartId;
-  db.get(`SELECT id FROM carts WHERE id = ?`, [cartId], (err, row) => {
-      if (err) return next(err);
-      if (!row) return res.status(404).send('Cart not found');
-      req.cartId = cartId;  // cart exists, proceed to the next middleware/route handler
-      next();
-  });
+    try {
+        const cartId = req.params.cartId;
+        db.get(`SELECT id FROM carts WHERE id = ?`, [cartId], (err, row) => {
+            if (err) return next(err);
+            if (!row) return res.status(404).send('Cart not found');
+            req.cartId = cartId;  // cart exists, proceed to the next middleware/route handler
+            next();
+        });
+    } catch (err) {
+        next(err);
+    }
 });
+
 
 // Add item to cart
 router.post('/:cartId/items', async (req, res, next) => {
     const { cartId } = req.params;
     const { productId, quantity } = req.body;
     try {
-        await Cart.addItem(cartId, productId, quantity);
-        res.status(201).send('Item added to cart');
+        const cart = new Cart(db, cartId);
+        await cart.addItem(productId, quantity);
+
+        const items = await cart.listItems();
+        const promotions = await cart.loadCartPromotions();
+        const totals = await cart.total();
+
+        res.status(201).json({ items, promotions, totals });
     } catch (err) {
         next(err);
     }
 });
+
 
 // List items in cart along with promotions
 router.get('/:cartId', async (req, res, next) => {
@@ -33,23 +45,27 @@ router.get('/:cartId', async (req, res, next) => {
     try {
         const cart = new Cart(db, cartId);
         const items = await cart.listItems();
-        const promotions = await cart.loadPromotions();  // Fetch promotions for this cart
-        res.json({ items, promotions });  // Include both items and promotions in the response
+        const promotions = await cart.loadCartPromotions();  // Fetch promotions for this cart
+        const totals = await cart.total();
+        res.json({ items, promotions, totals });  // Include both items and promotions in the response
     } catch (err) {
         next(err);
     }
 });
 
 router.delete('/:cartId/items/:productId', async (req, res, next) => {
-    const { cartId, productId } = req.params;
-    try {
-        await Cart.removeItem(cartId, productId);
-        res.status(204).send();
-    } catch (err) {
-        next(err);
-    }
-});
+  const { cartId, productId } = req.params;
+  try {
+      const cart = new Cart(db, cartId);
+      await cart.removeItem(productId);
 
-// ... Other routes for handling cart operations, discounts, and total calculations ...
+      const items = await cart.listItems();
+      const promotions = await cart.loadCartPromotions();
+      const totals = await cart.total();
+      res.status(200).json({ items, promotions, totals });
+  } catch (err) {
+      next(err);
+  }
+});
 
 module.exports = router;
