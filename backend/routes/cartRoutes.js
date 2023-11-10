@@ -5,20 +5,29 @@ const Promotion = require('../models/promotion');
 const db = require('../database')
 
 // Middleware to create a cart if it doesn't exist
-router.use('/:cartId', async (req, res, next) => {
-    try {
-        const cartId = req.params.cartId;
-        db.get(`SELECT id FROM carts WHERE id = ?`, [cartId], (err, row) => {
-            if (err) return next(err);
-            if (!row) return res.status(404).send('Cart not found');
-            req.cartId = cartId;  // cart exists, proceed to the next middleware/route handler
-            next();
-        });
-    } catch (err) {
-        next(err);
-    }
-});
+// router.use('/:cartId', async (req, res, next) => {
+//   const cartId = req.params.cartId;
+//   try {
+//       db.get(`SELECT id FROM carts WHERE id = ?`, [cartId], (err, row) => {
+//           if (err) return next(err);
 
+//           // If the cart exists, add the cartId to the request object and proceed
+//           if (row) {
+//               req.cartId = cartId;
+//               next();
+//           } else {
+//               // Cart doesn't exist, so create a new cart
+//               db.run(`INSERT INTO carts (id) VALUES (?)`, [cartId], (err) => {
+//                   if (err) return next(err);
+//                   req.cartId = cartId; // Add the new cartId to the request object
+//                   next();
+//               });
+//           }
+//       });
+//   } catch (err) {
+//       next(err);
+//   }
+// });
 
 // Add item to cart
 router.post('/:cartId/items', async (req, res, next) => {
