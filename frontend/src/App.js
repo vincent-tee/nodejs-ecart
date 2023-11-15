@@ -63,8 +63,8 @@ const App = () => {
         });
 
         if (response.ok) {
-          const responseBody = await response.text(); // Get the raw response body text
-          console.log('Response Body:', responseBody); // Log it for debugging
+          const responseBody = await response.text();
+          console.log('Response Body:', responseBody);
 
           updatedCart = responseBody ? JSON.parse(responseBody) : {};
         } else {

@@ -6,7 +6,7 @@ const CartItems = ({ items, onDecreaseQuantity }) => (
     <ul>
       {items.map((item, index) => (
         <li key={index}>
-          {item.productName} - Quantity: {item.quantity}
+          {item.name} - Quantity: {item.quantity}
           <button onClick={() => onDecreaseQuantity(item.id, item.quantity)}>
             -
           </button>

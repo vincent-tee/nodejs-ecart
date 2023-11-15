@@ -54,14 +54,15 @@ router.get('/:cartId', async (req, res, next) => {
     try {
         const cart = new Cart(db, cartId);
         const items = await cart.listItems();
-        const promotions = await cart.loadCartPromotions();  // Fetch promotions for this cart
+        const promotions = await cart.loadCartPromotions();
         const totals = await cart.total();
-        res.json({ items, promotions, totals });  // Include both items and promotions in the response
+        res.json({ items, promotions, totals });
     } catch (err) {
         next(err);
     }
 });
 
+// Delete items from cart
 router.delete('/:cartId/items/:productId', async (req, res, next) => {
   const { cartId, productId } = req.params;
   try {

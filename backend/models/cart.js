@@ -4,14 +4,13 @@ class Cart {
     this.cartId = cartId;
   }
 
-  // Function to create a Cart.
   create() {
     return new Promise((resolve, reject) => {
       this.db.run(`INSERT INTO carts DEFAULT VALUES`, function(err) {
         if (err) {
           reject(err);
         } else {
-          resolve(this.lastID); // 'this' refers to the context of the callback.
+          resolve(this.lastID);
         }
       });
     });
