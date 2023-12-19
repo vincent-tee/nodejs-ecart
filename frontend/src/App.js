@@ -5,7 +5,7 @@ import Products from './components/products';
 import Totals from './components/totals';
 
 const App = () => {
-  const cartId = '1'; // Replace with actual cart ID
+  const cartId = '9'; // Replace with actual cart ID
   const [cartItems, setCartItems] = useState([]);
   const [promotions, setPromotions] = useState([]);
   const [totals, setTotals] = useState({ subTotal: 0, totalDiscount: 0, totalPrice: 0 });
